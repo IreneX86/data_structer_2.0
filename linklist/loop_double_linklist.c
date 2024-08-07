@@ -2,67 +2,69 @@
     Author: IreneX86
     Email: Irene.127.0.0.1@gmail.com
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 
 typedef struct Node
 {
-    void *data; // 定义了一个链表节点结构，节点数据类型为 void*，可以存储任何类型的数据
+    void *data;
+    struct Node *pre;
     struct Node *next;
 } node_t;
 
-// 初始化链表，返回头节点
 node_t *initList()
 {
     node_t *headNode = (node_t *)malloc(sizeof(node_t));
     headNode->data = NULL;
-    headNode->next = NULL;
+    headNode->pre = headNode;
+    headNode->next = headNode;
     return headNode;
 }
 
-// 头插
 void headInsert(node_t *headNode, void *data, int *count)
 {
     node_t *node = (node_t *)malloc(sizeof(node_t));
     node->data = data;
+    node->pre = headNode;
     node->next = headNode->next;
+    headNode->next->pre = node;
     headNode->next = node;
     (*count)++;
 }
 
-// 尾插
 void tailInsert(node_t *headNode, void *data, int *count)
 {
     node_t *tailNode = headNode;
-    while (tailNode->next != NULL)
+    while (tailNode->next != headNode)
     {
-        tailNode = tailNode->next; // 遍历直到最后一个节点
+        tailNode = tailNode->next;
     }
 
     node_t *node = (node_t *)malloc(sizeof(node_t));
     node->data = data;
-    node->next = NULL;
+    node->pre = tailNode;
+    node->next = headNode;
     tailNode->next = node;
+    headNode->pre = node;
     (*count)++;
 }
 
-// 删除节点，若成功则返回1，未找到data则返回0
+// 删除
 int deleteNode(node_t *headNode, void *data, int (*cmp)(void *, void *), int *count)
 {
-    node_t *preNode = headNode;
     node_t *current = headNode->next;
-
-    while (current)
+    while (current != headNode)
     {
         if (cmp(current->data, data) == 0)
         {
-            preNode->next = current->next;
-            free(current->data); // 释放节点中的数据
-            free(current);       // 释放节点本身
+            current->pre->next = current->next;
+            current->next->pre = current->pre;
+            free(current->data);
+            free(current);
             (*count)--;
             return 1;
         }
-        preNode = current;
         current = current->next;
     }
     return 0;
@@ -72,12 +74,12 @@ int deleteNode(node_t *headNode, void *data, int (*cmp)(void *, void *), int *co
 void printList(node_t *headNode, void (*print)(void *))
 {
     node_t *node = headNode->next;
-    while (node)
+    while (node != headNode)
     {
         print(node->data);
         node = node->next;
     }
-    printf("NULL\n");
+    printf("HEAD\n");
 }
 
 // 打印整数数据的函数
@@ -130,11 +132,11 @@ int main(int argc, char *argv[])
     tailInsert(L, data, &count);
 
     data = malloc(sizeof(int));
-    *data = 805;
+    *data = 410;
     tailInsert(L, data, &count);
 
     data = malloc(sizeof(int));
-    *data = 1325;
+    *data = 740;
     tailInsert(L, data, &count);
 
     printList(L, printInt);
@@ -143,18 +145,8 @@ int main(int argc, char *argv[])
     if (deleteNode(L, &key, cmpInt, &count))
         printf("successfully deleted\n");
     else
-        printf("failed to delete\n");
-
+        printf("failed to delete");
     printList(L, printInt);
-
-    // 释放链表
-    while (L != NULL)
-    {
-        node_t *temp = L;
-        L = L->next;
-        free(temp->data);
-        free(temp);
-    }
 
     return 0;
 }
