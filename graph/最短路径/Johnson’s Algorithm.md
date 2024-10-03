@@ -36,9 +36,9 @@ $$
 - **Dijkstra算法** 使用堆的优先队列，其时间复杂度为 \(O((V + E) log V)\)，而Johnson算法需要对每个节点都运行一次Dijkstra算法，因此其复杂度为 \(O(V⋅ (V + E) log V)\)。
 
 Johnson算法的总时间复杂度为：
-\[
+$$
 O(V \cdot E + V \cdot (V + E) \log V) \approx O(V^2 \log V + V \cdot E)
-\]
+$$
 
 这使得它在稀疏图中比 **Floyd-Warshall算法** 更有效，因为后者的复杂度为 \(O(V^3)\)。
 
